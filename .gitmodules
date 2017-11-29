@@ -1,0 +1,3 @@
+[submodule "externals/miniplace_challenge"]
+	path = externals/miniplace_challenge
+	url = https://github.com/jmftrindade/miniplaces_challenge
