@@ -1,0 +1,4 @@
+dhash
+imagehash
+ipython
+jupyter

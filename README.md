@@ -3,10 +3,14 @@ Course project for 6.869: automatic summarization for neural net interpretabilit
 
 # Requirements
 
+Python packages:
+```
+$ pip install -r requirements.txt
+```
+
 # External modules
 
 To update to latest version of dependencies, run:
-
 ```
 $ git submodule update --init --recursive
 ```
