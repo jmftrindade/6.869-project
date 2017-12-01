@@ -105,7 +105,9 @@ def main(**kwargs):
     image_hash = kwargs.get('image_hash')
     image_hash_fn = get_image_hash_fn(image_hash)
     threshold = kwargs.get('threshold')
-    threshold = 10 if threshold is None else float(threshold)
+
+    # XXX: Heuristic based on results in empirical_tresholds.txt.
+    threshold = 15 if threshold is None else float(threshold)
 
     build_clusters(input_dir, image_hash_fn, threshold)
 
