@@ -4,15 +4,14 @@ import imagehash
 import os
 from operator import itemgetter
 from PIL import Image
-import math
 import operator
 
 
 class Cluster:
 
-        def __init__(self, image_filename, image_phash):
-            self.centroid = image_phash
-            self.images = [image_filename]
+        def __init__(self, image_path, image_hash):
+            self.centroid_hash = image_hash
+            self.images = [image_path]
 
         def __str__(self):
             return ' '.join([i for i in self.images])
@@ -21,46 +20,24 @@ class Cluster:
             self.images.append(image)
 
 
-def is_similar(centroid, image_phash, threshold):
-        # Bitwise count.
-        h, d = 0, centroid ^ image_phash
-        while d:
-            h += 1
-            d &= d - 1
-#        print 'h=%s' % h
-        if h > threshold:
-            return False
-        return True
-
-
-# XXX: Use imagehash's impl instead.
-def avhash(image):
-        im = image.resize((8, 8), Image.ANTIALIAS).convert('L')
-        avg = reduce(lambda x, y: x + y, im.getdata()) / 64.
-        return reduce(lambda x, (y, z): x | (z << y),
-                      enumerate(map(lambda i: 0 if i <
-                                    avg else 1, im.getdata())),
-                      0)
+def is_similar(centroid_hash, image_hash, threshold):
+    return abs(centroid_hash - image_hash) < threshold
 
 
 # XXX: Similarity threshold is heavily dependent on distance measure.
-def clustering(input_dir, threshold):
+# This is linear on the number of clusters created, which is of course
+# correlated with the similarity threshold.
+def build_clusters(input_dir, image_hash_fn, threshold):
         image_paths = get_image_paths(input_dir)
-
-        # XXX: After this many it gets super slow.
-        num_files = len(image_paths)
-        max_files = 1000
-        if num_files > max_files:
-            image_paths = image_paths[:max_files]
 
         clusters = []
         count = 0
-        step = 20
+        step = 100
         for image_path in image_paths:
             found_similar = False
             try:
                 image = Image.open(image_path)
-                h = avhash(image)  # FIXME: use other imagehash here
+                h = image_hash_fn(image)
             except:
                 continue
             finally:
@@ -69,7 +46,7 @@ def clustering(input_dir, threshold):
             # XXX: currently poor-man's seeding of initial centroids,
             # should change it to proper kmeans or kmeans++ instead
             for cluster in clusters:
-               if is_similar(cluster.centroid, h, threshold):
+               if is_similar(cluster.centroid_hash, h, threshold):
                     cluster.add_image(image_path)
                     found_similar = True
                     break
@@ -92,6 +69,23 @@ def get_image_paths(input_dir):
     return sorted(images)
 
 
+def get_image_hash_fn(image_hash):
+    # Average hash.
+    if image_hash == 'ahash':
+        return imagehash.average_hash
+
+    # Difference hash.
+    if image_hash == 'dhash':
+        return imagehash.dhash
+
+    # Perceptual hash.
+    if image_hash == 'phash':
+        return imagehash.phash
+
+    # Default is wavelength hash.
+    return imagehash.whash
+
+
 def print_clusters(clusters):
         # Descending order by number of images in the cluster.
         sorted_clusters = []
@@ -108,9 +102,12 @@ def print_clusters(clusters):
 
 def main(**kwargs):
     input_dir = kwargs.get('input_dir')
+    image_hash = kwargs.get('image_hash')
+    image_hash_fn = get_image_hash_fn(image_hash)
     threshold = kwargs.get('threshold')
-    threshold = 20 if threshold is None else float(threshold)
-    clustering(input_dir, threshold)
+    threshold = 10 if threshold is None else float(threshold)
+
+    build_clusters(input_dir, image_hash_fn, threshold)
 
 
 if __name__ == "__main__":
@@ -119,6 +116,14 @@ if __name__ == "__main__":
     parser.add_argument('-i', '--input_dir',
                         help='Relative path of directory with input images.',
                         required=True)
+    parser.add_argument('-ih', '--image_hash',
+                        choices=['ahash', 'dhash', 'phash', 'whash'],
+                        dest='image_hash',
+                        action='store',
+                        help='Type of hashing function to use for similarity.',
+                        required=True)
+    parser.add_argument('-t', '--threshold',
+                        help='Similarity threshold.')
 
     args = parser.parse_args()
     main(**vars(args))
