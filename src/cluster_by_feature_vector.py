@@ -1,6 +1,5 @@
 import argparse
 import glob
-import imagehash
 import operator
 import os
 from operator import itemgetter
@@ -86,13 +85,13 @@ def print_clusters(clusters):
 
 def main(**kwargs):
     input_dir = kwargs.get('input_dir')
-    image_hash = kwargs.get('feature_vector_file')
+    feature_vector_file = kwargs.get('feature_vector_file')
     threshold = kwargs.get('threshold')
 
     # XXX: Heuristic based on results in empirical_tresholds.txt.
     threshold = 15 if threshold is None else float(threshold)
 
-    build_clusters(input_dir, feature_vector, threshold)
+    build_clusters(input_dir, feature_vector_file, threshold)
 
 
 if __name__ == "__main__":
