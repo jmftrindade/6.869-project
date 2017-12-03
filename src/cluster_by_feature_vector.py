@@ -3,9 +3,8 @@ import glob
 import operator
 import os
 from operator import itemgetter
-from PIL import Image
 import sklearn
-
+from sklearn import metrics
 
 class Cluster:
 
@@ -21,8 +20,16 @@ class Cluster:
 
 
 def is_similar(centroid_feature_vector, image_feature_vector, threshold):
-    return sklearn.metrics.pairwise.cosine_distance(centroid_feature_vector,
-            image_feature_vector) < threshold
+    cd = metrics.pairwise.cosine_distances(centroid_feature_vector,
+            image_feature_vector)
+    ed = metrics.pairwise.euclidean_distances(centroid_feature_vector,
+            image_feature_vector)
+    cs = metrics.pairwise.cosine_similarity(centroid_feature_vector,
+            image_feature_vector)
+
+    print 'cos dist = %s, cos sim = %s, euclidean dist = %s' % (cd, cs, ed)
+
+    return cd < threshold
 
 
 # This is linear on the number of clusters created, which is of course
@@ -42,13 +49,6 @@ def build_clusters(input_dir, feature_vector_file, threshold):
                     sys.exit('Exiting: no feature vector for %s' % image_path)
 
                 found_similar = False
-                try:
-                    image = Image.open(image_path)
-                except:
-                    continue
-                finally:
-                    image.close()
-
                 # XXX: currently poor-man's seeding of initial centroids,
                 # should change it to proper kmeans or kmeans++ instead
                 for cluster in clusters:

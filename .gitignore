@@ -3,8 +3,9 @@
 .cache
 .ipynb_checkpoints
 
-# Images data
-test_images/
+# Images and feature vectors data
+src/test_images/*png
+src/feature_vectors/*txt
 
 # MATLAB temp files
 *~
