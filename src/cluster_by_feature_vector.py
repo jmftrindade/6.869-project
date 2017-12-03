@@ -1,10 +1,11 @@
 import argparse
 import glob
 import imagehash
+import operator
 import os
 from operator import itemgetter
 from PIL import Image
-import operator
+import sklearn
 
 
 class Cluster:
@@ -22,7 +23,8 @@ class Cluster:
 
 # FIXME: Use cosine distance instead.
 def is_similar(centroid_feature_vector, image_feature_vector, threshold):
-    return abs(centroid_feature_vector - image_feature_vector) < threshold
+    return sklearn.metrics.pairwise.cosine_distance(centroid_feature_vector,
+            image_feature_vector) < threshold
 
 
 # This is linear on the number of clusters created, which is of course
