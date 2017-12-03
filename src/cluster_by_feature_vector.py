@@ -88,8 +88,8 @@ def main(**kwargs):
     feature_vector_file = kwargs.get('feature_vector_file')
     threshold = kwargs.get('threshold')
 
-    # XXX: Heuristic based on results in empirical_tresholds.txt.
-    threshold = 15 if threshold is None else float(threshold)
+    # XXX: Cosine distance heuristic.
+    threshold = 0.3 if threshold is None else float(threshold)
 
     build_clusters(input_dir, feature_vector_file, threshold)
 
@@ -104,7 +104,7 @@ if __name__ == "__main__":
                         help='Relative path of file with images.',
                         required=True)
     parser.add_argument('-t', '--threshold',
-                        help='Similarity threshold.')
+                        help='Similarity threshold for cosine distance.')
 
     args = parser.parse_args()
     main(**vars(args))
