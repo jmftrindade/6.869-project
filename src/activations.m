@@ -4,12 +4,14 @@
 net = alexnet;
 
 % load sample test image
-%im_file = fullfile(matlabroot, 'examples', 'nnet', 'face.jpg');
-im_file = 'test_images/living_room_orig.png';
+im_file = fullfile(matlabroot, 'examples', 'nnet', 'face.jpg');
+%im_file = 'test_images/living_room_orig.png';
+figure(1); imshow(im_file)
 im = imread(im_file);
-im = imresize(im, [227, 227]);  % model expects a 227 x 277 image
+%im = imresize(im, [227, 227]);  % model expects a 227 x 277 image
 
 im_file_modified = 'test_images/living_room_no_couch.png';
+figure(2); imshow(im_file_modified)
 im_file_modified = imread(im_file_modified);
 im_modified = imresize(im_file_modified, [227, 227]);
 
@@ -49,6 +51,7 @@ montage(imresize(mat2gray(act5),[48 48]))
 act5chMax = act5(:,:,:,maxValueIndex5);
 imshow(imresize(mat2gray(act5chMax),imgSize))
 
+
 %% and in the tutorial, channels 3 and 5 are more interesting
 montage(imresize(mat2gray(act5(:,:,:,[3 5])),imgSize))
 
@@ -64,12 +67,11 @@ sz = size(act5relu);
 act5relu = reshape(act5relu,[sz(1) sz(2) 1 sz(3)]);
 montage(imresize(mat2gray(act5relu(:,:,:,[3 5])),imgSize))
 
-%% test whether a channel is recognizing eyes
-%imClosed = imread(fullfile(matlabroot,'examples','nnet','face-eye-closed.jpg'));
+imClosed = imread(fullfile(matlabroot,'examples','nnet','face_pirate.jpg'));
 %imshow(imClosed)
 % FIXME: yuck
-imClosed = im_modified;
-
+%imClosed = im_modified;
+imshow(im)
 act5Closed = activations(net,imClosed,'relu5','OutputAs','channels');
 sz = size(act5Closed);
 act5Closed = reshape(act5Closed,[sz(1),sz(2),1,sz(3)]);
