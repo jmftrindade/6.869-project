@@ -43,6 +43,9 @@ def build_clusters(input_dir, feature_vector_file, threshold):
             for line in f:
                 # <image_name> <fv_dim0> <fv_dim1> ... <fv_dimN>\n
                 tokens = line.rstrip().split(' ')
+                if len(tokens) == 0:
+                    continue
+
                 image_path = os.path.join(input_dir, tokens[0])
                 feature_vector = [tokens[1:]]
                 if len(feature_vector) == 0:
