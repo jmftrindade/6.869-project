@@ -21,7 +21,6 @@ class Cluster:
             self.images.append(image)
 
 
-# FIXME: Use cosine distance instead.
 def is_similar(centroid_feature_vector, image_feature_vector, threshold):
     return sklearn.metrics.pairwise.cosine_distance(centroid_feature_vector,
             image_feature_vector) < threshold
@@ -38,7 +37,7 @@ def build_clusters(input_dir, feature_vector_file, threshold):
             for line in f:
                 # <image_name> <fv_dim0> <fv_dim1> ... <fv_dimN>\n
                 tokens = line.rstrip().split(' ')
-                image_path = tokens[0]
+                image_path = os.path.join(input_dir, tokens[0])
                 feature_vector = [tokens[1:]]
                 if len(feature_vector) == 0:
                     sys.exit('Exiting: no feature vector for %s' % image_path)
