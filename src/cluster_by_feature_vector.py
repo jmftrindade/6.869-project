@@ -27,7 +27,7 @@ def is_similar(centroid_feature_vector, image_feature_vector, threshold):
     cs = metrics.pairwise.cosine_similarity(centroid_feature_vector,
             image_feature_vector)
 
-    print 'cos dist = %s, cos sim = %s, euclidean dist = %s' % (cd, cs, ed)
+#    print 'cos dist = %s, cos sim = %s, euclidean dist = %s' % (cd, cs, ed)
 
     return cd < threshold
 
@@ -43,6 +43,7 @@ def build_clusters(input_dir, feature_vector_file, threshold):
             for line in f:
                 # <image_name> <fv_dim0> <fv_dim1> ... <fv_dimN>\n
                 tokens = line.rstrip().split(' ')
+                tokens = [t for t in tokens if t != '']
                 if len(tokens) == 0:
                     continue
 
