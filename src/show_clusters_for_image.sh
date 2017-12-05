@@ -28,9 +28,9 @@ resnet_preds=$preds_dir/resnet_predictions.txt
 inception_preds=$preds_dir/inception_predictions.txt
 
 echo ""
-echo "resnet predictions:"
-grep $image $resnet_preds
+echo "resnet top5 predictions:"
+grep $image $resnet_preds | cut -d' ' -f1-6
 
 echo ""
-echo "inception predictions:"
-grep $image $inception_preds
+echo "inception top5 predictions:"
+grep $image $inception_preds | cut -d' ' -f1-6
