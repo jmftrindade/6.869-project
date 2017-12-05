@@ -10,7 +10,7 @@ for f in clusters-kmeans/*; do
   cluster=`cat $f | grep "$image"`;
   cluster_montage=/tmp/$(basename ${image%.*})-cluster-$(basename ${f%.*}).jpg
   echo ""
-  echo "saving cluster at \"$cluster_montage\"..."
+  echo "retrieving cluster for image \"$image\" from \"$f\"..."
   cmd="python image_montage.py -ix 128 -iy 128 -o $cluster_montage -i $cluster"
 #  echo "running $cmd"
   eval $cmd

@@ -10,7 +10,7 @@ def make_montage(x, y, input_images, output_montage):
         image = cv2.imread(image_path)
         images.append(image)
 
-    num_cols = 12
+    num_cols = 8
     num_rows = int(math.ceil(float(len(images)) / float(num_cols)))
     montages = build_montages(images, (x, y), (num_cols, num_rows))
 
