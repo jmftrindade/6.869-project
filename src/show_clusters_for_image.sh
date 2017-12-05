@@ -8,13 +8,19 @@ images_dir=$miniplaces_data_dir/images/
 
 for f in clusters-kmeans/*; do
   cluster=`cat $f | grep "$image"`;
-  echo "$f:";
-  echo "$cluster";
-  echo "";
+  cluster_montage=/tmp/$(basename ${image%.*})-cluster-$(basename ${f%.*}).jpg
+  echo ""
+  echo "saving cluster at \"$cluster_montage\"..."
+  cmd="python image_montage.py -ix 128 -iy 128 -o $cluster_montage -i $cluster"
+#  echo "running $cmd"
+  eval $cmd
+#  echo "$f:"
+#  echo "$cluster"
 done
 
 class_number=`grep $image $miniplaces_data_dir/*txt | cut -d' ' -f2`
 class=`grep " $class_number" $miniplaces_data_dir/categories.txt`
+echo ""
 echo "class=$class"
 
 preds_dir=$miniplaces_dir/weighted_majority/validation

@@ -1,4 +1,11 @@
-dhash
-imagehash
+pandas==0.20.3
+scipy==1.0.0
+ImageHash==3.7
+imutils==0.4.3
+h5py==2.7.1
+numpy==1.13.3
+Pillow==4.3.0
+imageio==2.2.0
+scikit_learn==0.19.1
 ipython
 jupyter
