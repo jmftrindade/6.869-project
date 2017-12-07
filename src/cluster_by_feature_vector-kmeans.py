@@ -43,11 +43,11 @@ def cluster_kmeans(df, colnames_to_ignore=[], k=5):
 
 def build_clusters(input_dir, feature_vector_file):
         clusters = []
-        count = 0
-        step = 100
 
         # XXX: Assumes feature vector is space separated file without header.
         df = pd.read_csv(feature_vector_file, sep=' ', header=None)
+        df.dropna(inplace=True)
+
         colnames = ['unit_' + str(c - 1) for c in df.columns]
         colnames[0] = 'image_path'
         df.columns = colnames
