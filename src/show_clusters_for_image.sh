@@ -15,14 +15,18 @@ for f in clusters-kmeans/*; do
   echo "retrieving cluster for image \"$image\" from \"$f\"..."
 
   CLASS_NAMES=()
+  TOP1_PREDS_NAMES=()
   for c in $cluster; do
     # XXX: Assumes validation images
     relative_name=val/$(basename ${c})
 #    class_number=`./show_class_for_image.sh $relative_name | grep "number=" | cut -d'=' -f2`
     class=`./show_class_for_image.sh $relative_name | grep "class=" | cut -d'=' -f2`
     CLASS_NAMES+=($class)
+
+    top1_pred=`./show_top5_preds_for_image.sh $relative_name | grep "predictions=" | cut -d'=' -f2 | cut -d' ' -f1`
+    TOP1_PREDS_NAMES+=($top1_pred)
   done
-  cmd="python image_montage.py -ix 128 -iy 128 -o $cluster_montage -oc $orig_class -i $cluster -cn ${CLASS_NAMES[@]}"
+  cmd="python image_montage.py -ix 128 -iy 128 -o $cluster_montage -oc $orig_class -i $cluster -cn ${CLASS_NAMES[@]} -pn ${TOP1_PREDS_NAMES[@]}"
 #  echo "running $cmd"
   eval $cmd
 done

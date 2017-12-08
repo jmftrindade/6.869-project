@@ -4,7 +4,7 @@ from imutils import build_montages
 import math
 
 
-def add_class_label(image, class_name, bg_color):
+def add_labels(image, class_name, prediction_name, bg_color):
     # Add a border.
     image_copy = image.copy()
     image_copy = cv2.copyMakeBorder(
@@ -17,28 +17,46 @@ def add_class_label(image, class_name, bg_color):
     scale = 0.4
     thickness = 1
     text_color = (255, 255, 255)
-    text_size = cv2.getTextSize(class_name, font, scale, thickness)[0]
-    label_start = (1, 12)
-    w = label_start[0] + text_size[0]
-    h = label_start[1] - text_size[1]
+    padding_w = 1
+    padding_h = 5
 
-    # Add text label with background around it.
-    cv2.rectangle(image_copy, (label_start[0] - 1,
-                               label_start[1] + 5), (w, h), bg_color, -1)
-    cv2.putText(image_copy, class_name, label_start, font,
+    # Add class label on top left corner.
+    class_text_size = cv2.getTextSize(
+        'L:' + class_name, font, scale, thickness)[0]
+    class_start = (1, 12)
+    c_w = class_start[0] + class_text_size[0]
+    c_h = class_start[1] - class_text_size[1]
+    cv2.rectangle(image_copy, (class_start[0] - padding_w,
+                               class_start[1] + padding_h), (c_w, c_h), bg_color, -1)
+    cv2.putText(image_copy, 'L:' + class_name, class_start, font,
+                scale, text_color, thickness, cv2.LINE_AA)
+
+    # Add prediction right below class label.
+    pred_text_size = cv2.getTextSize(
+        'P:' + prediction_name, font, scale, thickness)[0]
+    # right below class label
+    pred_start = (1, class_start[1] + class_text_size[1] + padding_h)
+    p_w = pred_start[0] + pred_text_size[0]
+    p_h = pred_start[1] - pred_text_size[1]
+    cv2.rectangle(image_copy, (pred_start[0] - padding_w,
+                               pred_start[1] + padding_h), (p_w, p_h), bg_color, -1)
+    cv2.putText(image_copy, 'P:' + prediction_name, pred_start, font,
                 scale, text_color, thickness, cv2.LINE_AA)
     return image_copy
 
 
-def make_montage(x, y, original_class, input_images, class_names, output_montage):
+def make_montage(x, y, original_class, input_images, class_names,
+                 prediction_names, output_montage):
     images = []
     for i, image_path in enumerate(input_images):
         image = cv2.imread(image_path)
-        label = class_names[i]
+        class_label = class_names[i]
+        prediction = prediction_names[i]
 
         # NOTE: OpenCV uses BGR instead of RGB
-        bg_color = ([255, 0, 0] if label == original_class else [0, 0, 255])
-        im = add_class_label(image, class_names[i], bg_color)
+        bg_color = ([255, 0, 0] if class_label ==
+                    original_class else [0, 0, 255])
+        im = add_labels(image, class_label, prediction, bg_color)
         images.append(im)
 
     num_cols = 8
@@ -54,16 +72,20 @@ def main(**kwargs):
     y = kwargs.get('y_dimension')
     input_images = kwargs.get('input_images')
     class_names = kwargs.get('class_names')
+    prediction_names = kwargs.get('prediction_names')
 
     if len(input_images) != len(class_names):
         sys.exit('Exiting: number of input images and class names do not match')
+
+    if len(class_names) != len(prediction_names):
+        sys.exit('Exiting: number of class names and prediction names do not match')
 
     original_class = kwargs.get('original_class')
     output_montage = kwargs.get('output_montage')
 
     print 'saving montage under %s...' % output_montage
     make_montage(x, y, original_class, input_images,
-                 class_names, output_montage)
+                 class_names, prediction_names, output_montage)
 
 
 if __name__ == "__main__":
@@ -88,6 +110,10 @@ if __name__ == "__main__":
                         required=True)
     parser.add_argument('-cn', '--class_names',
                         help='List with names of true classes of each image.',
+                        nargs='+',
+                        required=True)
+    parser.add_argument('-pn', '--prediction_names',
+                        help='List with top1 class predictions for each image.',
                         nargs='+',
                         required=True)
     parser.add_argument('-o', '--output_montage',
