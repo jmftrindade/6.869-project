@@ -2,9 +2,10 @@ import argparse
 import glob
 import imagehash
 import os
+import operator
 from operator import itemgetter
 from PIL import Image
-import operator
+import random
 
 
 class Cluster:
@@ -20,17 +21,31 @@ class Cluster:
             self.images.append(image)
 
 
-def is_similar(centroid_hash, image_hash, threshold):
-    return abs(centroid_hash - image_hash) < threshold
+def build_initial_clusters(image_paths, image_hash_fn, num_clusters):
+    clusters = []
+
+    # In-place shuffle.
+    random.shuffle(image_paths)
+    centroid_images = image_paths[0:num_clusters]
+
+    for image_path in centroid_images:
+        image = Image.open(image_path)
+        h = image_hash_fn(image)
+        clusters.append(Cluster(image_path, h))
+
+    remaining_images = [i for i in image_paths if i not in centroid_images]
+
+    return clusters, remaining_images
 
 
-# XXX: Similarity threshold is heavily dependent on distance measure.
-# This is linear on the number of clusters created, which is of course
-# correlated with the similarity threshold.
-def build_clusters(input_dir, image_hash_fn, threshold):
+def build_clusters(input_dir, image_hash_fn, num_clusters):
         image_paths = get_image_paths(input_dir)
+        clusters, remaining_images = build_initial_clusters(
+            image_paths, image_hash_fn, num_clusters)
+        image_paths = remaining_images
 
-        clusters = []
+        print 'clustering images into %s clusters...' % len(clusters)
+
         count = 0
         step = 100
         for image_path in image_paths:
@@ -43,20 +58,20 @@ def build_clusters(input_dir, image_hash_fn, threshold):
             finally:
                 image.close()
 
-            # XXX: currently poor-man's seeding of initial centroids,
-            # should change it to proper kmeans or kmeans++ instead
-            for cluster in clusters:
-               if is_similar(cluster.centroid_hash, h, threshold):
-                    cluster.add_image(image_path)
-                    found_similar = True
-                    break
+            min_diff = 999999  # arbitrarily large value
+            centroid_idx = None
+            for idx, cluster in enumerate(clusters):
+                diff = abs(cluster.centroid_hash - h)
 
-            if not found_similar:
-                clusters.append(Cluster(image_path, h))
+                if diff < min_diff:
+                    centroid_idx = idx
+                    min_diff = diff
+
+            clusters[centroid_idx].add_image(image_path)
 
             count += 1
-            if count % step == 0:
-                print 'finished processing %s images' % count
+#            if count % step == 0:
+#                print 'finished processing %s images' % count
 
         print_clusters(clusters)
 
@@ -95,7 +110,7 @@ def print_clusters(clusters):
 
         cluster_number = 1
         for c in sorted_clusters:
-            print 'cluster %s:' % cluster_number
+            print '\ncluster %s:' % cluster_number
             print c[0]
             cluster_number += 1
 
@@ -104,12 +119,9 @@ def main(**kwargs):
     input_dir = kwargs.get('input_dir')
     image_hash = kwargs.get('image_hash')
     image_hash_fn = get_image_hash_fn(image_hash)
-    threshold = kwargs.get('threshold')
+    num_clusters = kwargs.get('num_clusters')
 
-    # XXX: Heuristic based on results in empirical_tresholds.txt.
-    threshold = 15 if threshold is None else float(threshold)
-
-    build_clusters(input_dir, image_hash_fn, threshold)
+    build_clusters(input_dir, image_hash_fn, num_clusters)
 
 
 if __name__ == "__main__":
@@ -124,8 +136,9 @@ if __name__ == "__main__":
                         action='store',
                         help='Type of hashing function to use for similarity.',
                         required=True)
-    parser.add_argument('-t', '--threshold',
-                        help='Similarity threshold.')
+    parser.add_argument('-nc', '--num_clusters',
+                        help='Number of clusters to build.',
+                        type=int)
 
     args = parser.parse_args()
     main(**vars(args))
