@@ -27,7 +27,7 @@ for f in clusters-kmeans/*; do
     TOP1_PREDS_NAMES+=($top1_pred)
   done
   cmd="python image_montage.py -ix 128 -iy 128 -o $cluster_montage -oc $orig_class -i $cluster -cn ${CLASS_NAMES[@]} -pn ${TOP1_PREDS_NAMES[@]}"
-  echo "running $cmd"
+#  echo "running $cmd"
   eval $cmd
 done
 
