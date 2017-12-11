@@ -28,7 +28,7 @@ def plot_histogram(df, out_pdf, x_axis_label, y_axis_label, min_x, max_x):
     print 'Saved histogram as "%s".' % out_pdf
 
 
-def build_per_class_histograms(input_file):
+def build_per_class_histograms(input_file, class_number, output_dir):
     # XXX: Assumes file is space separated file without header in the following
     # format:
     #
@@ -47,14 +47,14 @@ def build_per_class_histograms(input_file):
     # Per class groups.
     count_hist = 0
     for idx, g in df.groupby(['class_label', 'top1_pred']):
-        # FIXME: Remove this limit.
-        if count_hist > 10:
-            break
-
         class_label = idx[0]
         pred = idx[1]
+
+        if class_label != class_number:
+            continue
+
         is_misclassified = class_label != pred
-        out_pdf = '/tmp/class_' + str(class_label)
+        out_pdf = output_dir + '/class_' + str(class_label)
         out_pdf += '_misclassified_as_' + str(pred) if is_misclassified else ''
         out_pdf += '-' + str(len(g)) + '_examples'
         out_pdf += '.pdf'
@@ -67,12 +67,21 @@ def build_per_class_histograms(input_file):
 
         count_hist += 1
 
+    if count_hist == 0:
+        print 'No histograms computed for class %s' % class_number
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Outputs per class histograms.')
     parser.add_argument('-i', '--input_file',
                         help='Relative path of input file with raw data.',
+                        required=True)
+    parser.add_argument('-c', '--class_number',
+                        help='Class number for which to compute histograms.',
+                        type=int,
+                        required=True)
+    parser.add_argument('-o', '--output_dir',
                         required=True)
 
     args = parser.parse_args()
