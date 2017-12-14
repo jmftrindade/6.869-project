@@ -12,7 +12,7 @@ paste -d' ' /tmp/labels.txt /tmp/preds.txt /tmp/avg_conv1.txt  > /tmp/histogram.
 # Generate histograms (saved under /tmp).
 out_dir=/tmp/histograms/${layer}
 mkdir -p $out_dir
-python compute_per_class_histograms.py -i /tmp/histogram.txt -c $class -o $out_dir
+python compute_per_class_histograms.py -i /tmp/histogram.txt -c $class -o $out_dir #--normalize_counts
 
 # Cleanup temp text files.
 rm /tmp/labels.txt /tmp/avg_${layer}.txt /tmp/preds.txt /tmp/histogram.txt

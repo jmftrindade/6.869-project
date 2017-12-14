@@ -15,10 +15,12 @@ sns.set_context('paper', font_scale=2, rc={'lines.linewidth': 3})
 sns.despine(left=True, bottom=True)
 
 
-def plot_histogram(df, out_pdf, x_axis_label, y_axis_label, min_x, max_x):
+def plot_histogram(df, out_pdf, x_axis_label, y_axis_label, min_x, max_x,
+        normalize_counts=False):
     plt.figure()
 
-    ax = sns.distplot(df)
+    # FIXME: revisit, as what we want here is a "relative histogram" instead.
+    ax = sns.distplot(df, norm_hist=normalize_counts)
     ax.set(xlabel=x_axis_label, ylabel=y_axis_label, xlim=(min_x, max_x))
 
     fig = ax.get_figure()
@@ -28,7 +30,8 @@ def plot_histogram(df, out_pdf, x_axis_label, y_axis_label, min_x, max_x):
     print 'Saved histogram as "%s".' % out_pdf
 
 
-def build_per_class_histograms(input_file, class_number, output_dir):
+def build_per_class_histograms(input_file, class_number, output_dir,
+        normalize_counts):
     # XXX: Assumes file is space separated file without header in the following
     # format:
     #
@@ -63,7 +66,8 @@ def build_per_class_histograms(input_file, class_number, output_dir):
         # for raw sums instead.
         hist_df = g.drop(non_unit_cols, axis=1).sum()
         plot_histogram(hist_df, out_pdf, 'Unit',
-                       'Sum of activations', min_x=0, max_x=count_units)
+                       'Sum of activations', min_x=0,
+                       max_x=count_units, normalize_counts=True)
 
         count_hist += 1
 
@@ -83,6 +87,13 @@ if __name__ == "__main__":
                         required=True)
     parser.add_argument('-o', '--output_dir',
                         required=True)
+    parser.add_argument('--normalize_counts',
+                        help='Normalize counts for each histogram bar, '
+                        'effectively plotting what is know as a "relative '
+                        'histogram".',
+                        dest='normalize_counts',
+                        action='store_true')
+    parser.set_defaults(normalize_counts=False)
 
     args = parser.parse_args()
     build_per_class_histograms(**vars(args))
