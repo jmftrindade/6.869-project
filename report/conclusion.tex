@@ -1,8 +1,5 @@
 \section{Conclusion}
 \label{s:conclusion}
 
-\begin{itemize}
-\item What we learned
-\item How to improve
-\item Hint at future work
-\end{itemize}
+
+We proposed two techniques for interpretability of Convolutional Neural Networks: Layer summarization and clustering by unit summarization. We believe these techniques are help augment other tools for better model interpretability. Though both of these techniques are aggressively lossy, we are able to provide insight into how our trained model performs on some groups of images. We find that clustering by unit summarization can find similar images layer-by-layer, and can explain misclassified examples by their similarity to true positive examples in the inner layers of our network. Layer summarization allows us to recover perturbations we introduced, helping to validate our beliefs about the network's behavior. This project suggests future work in finding new summarizations that further improve our results. Less aggressive summarization techniques may reveal more about a network. A next step is to understand how well these techniques work on more complicated, deeper network architectures. 

@@ -1,16 +1,13 @@
 \section{Experiments}
 \label{s:experiments}
 
-\todo{Describe experiments setup that is common to all tasks: AlexNet \cite{tensorflow} model trained on MiniPlaces dataset \cite{miniplaces}, and MiniPlaces validation images used as stimuli.}
+For our experiments we used one of our trained Alexnet~\cite{alexnet} models from the MiniPlaces challenge. Our AlexNet models were trained on the MiniPlaces training set on a desktop with an 8 core Intel(R) Core(TM) i7-6900K CPU @ 3.20GHz CPU and a Nvidia Titan-X GPU with 12GB of on-board memory. Our model was trained with a  $0.5$ keep probability for dropout, an initial learning rate of $0.001$, and the Tensorflow default parameters for the Adam optimizer. 
 
-\begin{itemize}
-\item Machine and network setup for training (copy-pasta from MiniPlaces report)
-\item Questions we want to answer with each set of experiments
-\item Subjective evaluation of the results
-\end{itemize}
+With a qualitative evaluation we show that we can recover similar images at different layers of our network using image clustering by unit similarities. We also show that we can detect perturbations introduced in images with layer summaries.
+
 
 \input{exp_activation_clustering}
 
 \input{exp_layer_summaries}
 
-\input{exp_histograms}
+%%\input{exp_histograms}
