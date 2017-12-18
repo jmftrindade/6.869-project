@@ -9,3 +9,21 @@ src/feature_vectors/*txt
 
 # MATLAB temp files
 *~
+
+# Vanilla latex
+*.aux
+*.blg
+*.bbl
+report/*.log
+egpaper_final.pdf
+
+# Latexmk and Makefile
+*-blx.bib
+*.fdb*
+*.fls*
+*.xml
+.refresh
+main.out
+
+# Latex minted package
+_minted-paper/
